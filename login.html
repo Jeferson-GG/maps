@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
+        integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Página com Containers Lado a Lado</title>
+    <style>
+        body {
+            margin: 0;
+            overflow-x: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            max-width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #013237;
+        }
+
+        .container .container1,
+        .container .container2 {
+            flex: 1;
+
+        }
+
+        /* Estilo para o primeiro container filho */
+        .container .container1 {
+            flex: 1;
+            /* O primeiro container ocupa metade da largura total */
+            padding: 20px;
+            margin: 0;
+            background-color: #013237;
+            height: 95vh;
+
+        }
+
+        .container2 {
+            margin: 10px;
+            max-width: 30%;
+            height: 95vh;
+        }
+
+        img {
+            max-width: 100%;
+            height: 100%;
+        }
+
+        /* Adicionando regras de mídia para telas menores */
+        @media only screen and (max-width: 768px) {
+
+            img {
+                display: none;
+            }
+
+            .container2 {
+                width: 100%;
+                height: 100vh;
+                position: absolute;
+
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+        }
+
+
+        input {
+            padding: 15px;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            border-radius: 10px;
+            width: 86%;
+
+        }
+
+        .inputSubmit {
+            background-color: rgba(0, 0, 0, 0.0);
+            width: 100%;
+            height: 40px;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            z-index: 0;
+            border-radius: 10px;
+            padding-top: 10px;
+            color: white;
+            
+            
+        }
+
+        .logoLogin {
+            width: auto;
+            height: auto;
+            margin: 0 auto;
+            padding-top: 10px;
+            display: block;
+
+        }
+
+        form {
+            margin: 80px;
+            margin-bottom: 30vh;
+        }
+
+        /* Media query para dispositivos menores */
+        @media (max-width: 600px) {
+            body {
+                min-height: 100vh;
+                /* Ajuste na altura mínima */
+            }
+            .container2{
+                max-width: 100%;
+
+            }
+
+            form {
+                margin: 80px;
+                margin-bottom: 30vh;
+            }
+
+            .logoLogin {
+                width: auto;
+                height: auto;
+                margin: 0 auto;
+                padding-top: 10px;
+                display: block;
+            }
+
+            h1 {
+                text-align: center;
+            }
+
+            input,
+            .inputSubmit,
+            a {
+                font-size: 14px;
+                /* Redução das fontes */
+            }
+        }
+
+
+        .form-check.form-switch {
+            margin-right: 10px;
+        }
+
+        .file-preview {
+            max-width: 100%;
+            height: auto;
+        }
+
+
+        .glow-on-hover {
+            width: 150px;
+            height: 40px;
+            border: none;
+            outline: none;
+            color: #fff;
+            background: #111111;
+            cursor: pointer;
+            position: relative;
+            z-index: 0;
+            border-radius: 10px;
+            margin: 0;
+            width: 100%;
+        }
+
+        .glow-on-hover:before {
+            content: '';
+            background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            background-size: 400%;
+            z-index: -1;
+            filter: blur(5px);
+            width: calc(100% + 4px);
+            height: calc(100% + 4px);
+            animation: glowing 20s linear infinite;
+            opacity: 0;
+            transition: opacity .3s ease-in-out;
+            border-radius: 10px;
+        }
+
+        .glow-on-hover:active {
+            color: #000000
+        }
+
+        .glow-on-hover:active:after {
+            background: transparent;
+        }
+
+        .glow-on-hover.hovered:before {
+            opacity: 1;
+        }
+
+        .glow-on-hover:after {
+            z-index: -1;
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #013237;
+            left: 0;
+            top: 0;
+            border-radius: 10px;
+        }
+
+        @keyframes glowing {
+            0% {
+                background-position: 0 0;
+            }
+
+            50% {
+                background-position: 400% 0;
+            }
+
+            100% {
+                background-position: 0 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="container1">
+            <!-- Conteúdo do primeiro container -->
+            <img src="https://wallpaperaccess.com/full/2681853.jpg" alt="">
+            <p></p>
+        </div>
+
+        <div class="container2">
+
+            
+            <form action="testLogin.php" method="POST">
+                <img src="logo.png" alt="Logo da Mafredine" class="logoLogin">
+            <h1>
+                Login
+            </h1>
+            <br>
+                <input type="text" name="email" placeholder="E-mail">
+                <br><br>
+                <input type="password" name="senha" placeholder="Senha">
+                <br><br><br>
+                <div class="glow-on-hover" id="myButton">
+                    <input class="inputSubmit" type="submit" name="submit" value="Enviar">
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const button = document.getElementById("myButton");
+        button.classList.add("hovered");
+    });
+
+</script>
+
+</html>

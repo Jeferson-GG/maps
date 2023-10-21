@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBuSTWt8jozLtY_PtIqGFqnrbYOQYPtkY0&callback=initMap"
+        async defer></script>
+</head>
+
+<body>
+
+    
+    <!-- Adicione checkboxes para filtrar os marcadores -->
+    <label><input type="checkbox" id="onlineCheckbox" onchange="filtrarDados()"> Mostrar Online</label>
+    <label><input type="checkbox" id="offlineCheckbox" onchange="filtrarDados()"> Mostrar Offline</label>
+
+    <!-- Adicione checkboxes para filtrar por status -->
+    <label><input type="checkbox" id="bloqueadosCheckbox" onchange="filtrarDados()"> Mostrar Bloqueados</label>
+    <label><input type="checkbox" id="liberadosCheckbox" onchange="filtrarDados()"> Mostrar Liberados</label>
+
+    <!-- Adicione checkboxes para filtrar por id_ssid -->
+    <label><input type="checkbox" id="ssid13Checkbox" onchange="filtrarDados()"> SSID OLT4-PART2</label>
+    <label><input type="checkbox" id="ssid12Checkbox" onchange="filtrarDados()"> SSID OLT6-LOJA 3-4 (99)</label>
+    <label><input type="checkbox" id="ssid21Checkbox" onchange="filtrarDados()"> SSID OLT7-LOJA (95)</label>
+    <label><input type="checkbox" id="ssid16Checkbox" onchange="filtrarDados()"> SSID OLT7-LOJA (97)</label>
+    <label><input type="checkbox" id="ssid17Checkbox" onchange="filtrarDados()"> SSID OLT8-STPCA</label>
+    <!-- Adicione mais checkboxes conforme necessário com base nos IDs de SSID retornados -->
+    <select id="ponSelect" multiple onchange="filtrarDados()">
+        <option value="0/1">PON 0/1</option>
+        <option value="0/2">PON 0/2</option>
+        <option value="0/3">PON 0/3</option>
+        <option value="0/4">PON 0/4</option>
+        <option value="0/5">PON 0/5</option>
+        <option value="0/6">PON 0/6</option>
+        <option value="0/7">PON 0/7</option>
+        <option value="0/8">PON 0/8</option>
+        <option value="0/9">PON 0/9</option>
+        <option value="0/10">PON 0/10</option>
+        <option value="0/11">PON 0/11</option>
+        <option value="0/12">PON 0/12</option>
+        <option value="0/13">PON 0/13</option>
+        <option value="0/14">PON 0/14</option>
+        <option value="0/15">PON 0/15</option>
+        <option value="0/16">PON 0/16</option>
+    </select>
+
+    <!-- Adicione checkboxes para filtrar por id_base -->
+    <label><input type="checkbox" id="idBase1Checkbox" onchange="filtrarDados()">CCR1009</label>
+    <label><input type="checkbox" id="idBase2Checkbox" onchange="filtrarDados()">CCR1036+-</label>
+    <label><input type="checkbox" id="idBase3Checkbox" onchange="filtrarDados()">RB1100</label>
+    <label><input type="checkbox" id="idBase4Checkbox" onchange="filtrarDados()">B-RAS</label>
+    <!-- Adicione mais checkboxes conforme necessário com base nos IDs de id_base retornados -->
+
+    <div id="map" style="height: 400px; width: 100%;"></div>
+
+    <script>
+        let map;
+        let markers = [];
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -12.869433322038935, lng: -38.46949021366216 }, // Define o centro do mapa
+                zoom: 16 // Define o nível de zoom inicial
+            });
+
+            // Filtra os marcadores ao iniciar o mapa
+            filtrarDados();
+        }
+
+        function adicionarMarcadores(dados) {
+            // Limpa marcadores antigos
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+
+            // Define os ícones para marcadores online e offline
+            const iconOnline = 'marcadoron.png';
+            const iconOffline = 'marcadoroff.png';
+
+            // Crie um objeto InfoWindow
+            const infoWindow = new google.maps.InfoWindow();
+
+            // Adiciona marcadores com base nos dados
+            dados.forEach(function (item) {
+                // Escolhe o ícone com base no estado
+                const icon = (item.conexao === 'online') ? iconOnline : iconOffline;
+
+                // Verifica o status
+                if ((item.status === 'bloqueado' && !document.getElementById('bloqueadosCheckbox').checked) ||
+                    (item.status === 'liberado' && !document.getElementById('liberadosCheckbox').checked)) {
+                    return; // Ignora marcadores que não atendem aos critérios de status selecionados
+                }
+
+                // Verifica o id_ssid
+                const ssid13Checkbox = document.getElementById('ssid13Checkbox');
+                const ssid12Checkbox = document.getElementById('ssid12Checkbox');
+                const ssid21Checkbox = document.getElementById('ssid21Checkbox');
+                const ssid16Checkbox = document.getElementById('ssid16Checkbox');
+                const ssid17Checkbox = document.getElementById('ssid17Checkbox');
+
+                if ((item.id_ssid === 13 && !ssid13Checkbox.checked) ||
+                    (item.id_ssid === 12 && !ssid12Checkbox.checked) ||
+                    (item.id_ssid === 21 && !ssid21Checkbox.checked) ||
+                    (item.id_ssid === 16 && !ssid16Checkbox.checked) ||
+                    (item.id_ssid === 17 && !ssid17Checkbox.checked)) {
+                    return; // Ignora marcadores que não atendem aos critérios de id_ssid selecionados
+                }
+
+                // Verifica a PON
+                const ponSelect = document.getElementById('ponSelect');
+                const selectedPons = Array.from(ponSelect.selectedOptions).map(option => option.value);
+
+                if (selectedPons.length > 0 && !selectedPons.includes(item.pon)) {
+                    return; // Ignora marcadores que não atendem aos critérios de PON selecionados
+                }
+
+                // Verifica o id_base
+                const idBase1Checkbox = document.getElementById('idBase1Checkbox');
+                const idBase2Checkbox = document.getElementById('idBase2Checkbox');
+                const idBase3Checkbox = document.getElementById('idBase3Checkbox');
+                const idBase4Checkbox = document.getElementById('idBase4Checkbox');
+                // Adicione mais IDs de id_base conforme necessário
+
+                if ((item.id_base === 1 && !idBase1Checkbox.checked) ||
+                    (item.id_base === 4 && !idBase2Checkbox.checked) ||
+                    (item.id_base === 5 && !idBase3Checkbox.checked) ||
+                    (item.id_base === 6 && !idBase4Checkbox.checked)) {
+                    return; // Ignora marcadores que não atendem aos critérios de id_base selecionados
+                }
+
+                const marker = new google.maps.Marker({
+                    position: { lat: parseFloat(item.latitude), lng: parseFloat(item.longitude) },
+                    map: map,
+                    title: item.nome,
+                    icon: icon // Define o ícone do marcador
+                });
+
+                // Adiciona um ouvinte de clique ao marcador
+                marker.addListener('click', function () {
+                    // Crie o conteúdo personalizado do InfoWindow com informações do banco de dados
+                    const content = `
+                        <strong>Base:</strong> ${item.base}<br>
+                        <strong>Serial:</strong> ${item.serial}<br>
+                        <strong>Usuário:</strong> ${item.usuario}<br>
+                        <strong>Status:</strong> ${item.status}<br>
+                        <strong>SSID:</strong> ${item.ssid}<br>
+                        <strong>RXPower:</strong> ${item.rxpower}<br>
+                        <strong>PON:</strong> ${item.pon}<br>
+                        Latitude: ${item.latitude}<br>
+                        Longitude: ${item.longitude}
+                    `;
+                    infoWindow.setContent(content);
+                    infoWindow.open(map, marker); // Abre o InfoWindow associado a este marcador
+                });
+
+                markers.push(marker);
+            });
+        }
+
+        function filtrarDados() {
+            // Verifica o estado dos checkboxes
+            const onlineCheckbox = document.getElementById('onlineCheckbox');
+            const offlineCheckbox = document.getElementById('offlineCheckbox');
+            const mostrarOnline = onlineCheckbox.checked;
+            const mostrarOffline = offlineCheckbox.checked;
+
+            // Verifica o estado dos checkboxes de status
+            const bloqueadosCheckbox = document.getElementById('bloqueadosCheckbox');
+            const liberadosCheckbox = document.getElementById('liberadosCheckbox');
+            const mostrarBloqueados = bloqueadosCheckbox.checked;
+            const mostrarLiberados = liberadosCheckbox.checked;
+
+            // Verifica o estado dos checkboxes de id_ssid
+            const ssid13Checkbox = document.getElementById('ssid13Checkbox');
+            const ssid12Checkbox = document.getElementById('ssid12Checkbox');
+            const ssid21Checkbox = document.getElementById('ssid21Checkbox');
+            const ssid16Checkbox = document.getElementById('ssid16Checkbox');
+            const ssid17Checkbox = document.getElementById('ssid17Checkbox');
+
+            // Verifica o estado dos checkboxes de id_base
+            const idBase1Checkbox = document.getElementById('idBase1Checkbox');
+            const idBase2Checkbox = document.getElementById('idBase2Checkbox');
+            const idBase3Checkbox = document.getElementById('idBase3Checkbox');
+            const idBase4Checkbox = document.getElementById('idBase4Checkbox');
+            // Adicione mais IDs de id_base conforme necessário
+
+            // Limpa marcadores antigos
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+
+            // Monta a string de consulta com base nos checkboxes marcados
+            let consulta = "";
+
+            if (mostrarOnline && mostrarOffline) {
+                consulta = "ambos";
+            } else if (mostrarOnline) {
+                consulta = "online";
+            } else if (mostrarOffline) {
+                consulta = "offline";
+            }
+
+            // Faz a solicitação AJAX com a consulta
+            const xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    adicionarMarcadores(response);
+                }
+            };
+            xhr.open("GET", `api.php?conexao=${consulta}`, true);
+            xhr.send();
+        }
+
+        // Inicializa o mapa quando a página carregar
+        initMap();
+    </script>
+</body>
+
+</html>
